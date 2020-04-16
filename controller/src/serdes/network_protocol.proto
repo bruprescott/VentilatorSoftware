@@ -56,20 +56,17 @@ message CommandPacket
 {
     required CommandType cmd = 1;
     optional uint32 data = 2;
-    required uint32 checksum = 3;
 }
 
 message GuiAckPacket
 {
 	required uint32 type = 1;
-	required uint32 checksum = 2;
 }
 
 message ControllerDataPacket
 {
 	required ControllerMsgType msg_type = 1;
-	required bytes data = 3;
-    required uint32 checksum = 4;
+	required bytes data = 2;
 }
 
 message Packet
