@@ -51,9 +51,8 @@ bool serdes_encode_data_packet(uint8_t *data, uint8_t data_len, uint8_t *tx_buff
     packet.data.funcs.encode = bytes_callback;
     packet.data.arg = &tmp;
 
-    pb_get_encoded_size(encoded_len, ControllerDataPacket_fields, &packet);
-    *encoded_len += 1;
-
     bool status = encode_unionmessage(&stream, ControllerDataPacket_fields, &packet);
+    *encoded_len = stream.bytes_written;
+
     return status;
 }
