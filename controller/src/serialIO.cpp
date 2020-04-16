@@ -48,3 +48,7 @@ void serialIO_send(enum msgType type, enum dataID id, char *data, uint8_t len) {
   Serial.write(static_cast<uint8_t>(check_bytes >> 8));
   Serial.write(static_cast<uint8_t>(check_bytes & 0xff));
 }
+
+void serialIO_send(uint8_t b) {
+  Serial.write(b);
+}

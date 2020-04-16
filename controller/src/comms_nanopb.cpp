@@ -1,23 +1,30 @@
 #include <Arduino.h>
 
 #include "comms.h"
-#include "serdes/serdes.h"
+#include "serdes.h"
+#include "serialIO.h"
+#include "version.h"
 
 #define PACKET_LEN_MAX (32)
 uint8_t tx_buffer[PACKET_LEN_MAX];
+uint8_t tx_data_length;
+bool output_buffer_ready = false;
 
 void comms_init() {
-
+    serialIO_init();
 }
 
 void comms_handler() {
-
+	if(output_buffer_ready) {
+		for(uint8_t i = 0; i < tx_data_length; i++) {
+			serialIO_send(tx_buffer[i]);
+		}
+		output_buffer_ready = false;
+	}
 }
 
 void comms_sendResetState() {
-
 }
-
 
 void comms_sendPeriodicReadings(float pressure, float volume, float flow) {
     uint8_t readingsData[16];
@@ -45,5 +52,9 @@ void comms_sendPeriodicReadings(float pressure, float volume, float flow) {
     readingsData[14] = (((uint32_t) flow) >> 8) & 0xFF;
     readingsData[15] = ((uint32_t) flow) & 0xFF;
 
-    serdes_encode_data_packet(readingsData, 16, tx_buffer, PACKET_LEN_MAX);
+    bool status = serdes_encode_data_packet(readingsData, 16, tx_buffer, PACKET_LEN_MAX);
+    if(status) {
+    	output_buffer_ready = true;
+    	tx_data_length = 32; //TODO how to get the encoded data length form nanopb?
+    }
 }
