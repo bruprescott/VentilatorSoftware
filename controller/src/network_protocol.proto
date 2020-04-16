@@ -68,7 +68,6 @@ message GuiAckPacket
 message ControllerDataPacket
 {
 	required ControllerMsgType msg_type = 1;
-	required uint32 data_id = 2;
 	required bytes data = 3;
     required uint32 checksum = 4;
 }

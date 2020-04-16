@@ -70,7 +70,6 @@ typedef struct _CommandPacket {
 
 typedef struct _ControllerDataPacket {
     ControllerMsgType msg_type;
-    uint32_t data_id;
     pb_callback_t data;
     uint32_t checksum;
 } ControllerDataPacket;
@@ -103,11 +102,11 @@ typedef struct _Packet {
 /* Initializer values for message structs */
 #define CommandPacket_init_default               {_CommandType_MIN, false, 0, 0}
 #define GuiAckPacket_init_default                {0, 0}
-#define ControllerDataPacket_init_default        {_ControllerMsgType_MIN, 0, {{NULL}, NULL}, 0}
+#define ControllerDataPacket_init_default        {_ControllerMsgType_MIN, {{NULL}, NULL}, 0}
 #define Packet_init_default                      {0, {CommandPacket_init_default}}
 #define CommandPacket_init_zero                  {_CommandType_MIN, false, 0, 0}
 #define GuiAckPacket_init_zero                   {0, 0}
-#define ControllerDataPacket_init_zero           {_ControllerMsgType_MIN, 0, {{NULL}, NULL}, 0}
+#define ControllerDataPacket_init_zero           {_ControllerMsgType_MIN, {{NULL}, NULL}, 0}
 #define Packet_init_zero                         {0, {CommandPacket_init_zero}}
 
 /* Field tags (for use in manual encoding/decoding) */
@@ -115,7 +114,6 @@ typedef struct _Packet {
 #define CommandPacket_data_tag                   2
 #define CommandPacket_checksum_tag               3
 #define ControllerDataPacket_msg_type_tag        1
-#define ControllerDataPacket_data_id_tag         2
 #define ControllerDataPacket_data_tag            3
 #define ControllerDataPacket_checksum_tag        4
 #define GuiAckPacket_type_tag                    1
@@ -140,7 +138,6 @@ X(a, STATIC,   REQUIRED, UINT32,   checksum,          2)
 
 #define ControllerDataPacket_FIELDLIST(X, a) \
 X(a, STATIC,   REQUIRED, UENUM,    msg_type,          1) \
-X(a, STATIC,   REQUIRED, UINT32,   data_id,           2) \
 X(a, CALLBACK, REQUIRED, BYTES,    data,              3) \
 X(a, STATIC,   REQUIRED, UINT32,   checksum,          4)
 #define ControllerDataPacket_CALLBACK pb_default_field_callback
