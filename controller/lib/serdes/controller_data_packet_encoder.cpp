@@ -41,7 +41,7 @@ static bool bytes_callback(pb_ostream_t *stream, const pb_field_t *field, void *
            pb_encode_string(stream, data->buf, data->len);
 }
 
-bool serdes_encode_data_packet(uint8_t *data, uint8_t data_len, uint8_t *tx_buffer, uint8_t tx_buffer_len) {
+bool serdes_encode_data_packet(uint8_t *data, uint8_t data_len, uint8_t *tx_buffer, uint8_t tx_buffer_len, size_t *encoded_len) {
     pb_ostream_t stream = pb_ostream_from_buffer(tx_buffer, tx_buffer_len);
     
     ControllerDataPacket packet = ControllerDataPacket_init_zero;
@@ -50,6 +50,9 @@ bool serdes_encode_data_packet(uint8_t *data, uint8_t data_len, uint8_t *tx_buff
     mydata_t tmp = {data_len, data};
     packet.data.funcs.encode = bytes_callback;
     packet.data.arg = &tmp;
+
+    pb_get_encoded_size(encoded_len, ControllerDataPacket_fields, &packet);
+    *encoded_len += 1;
 
     bool status = encode_unionmessage(&stream, ControllerDataPacket_fields, &packet);
     return status;

@@ -31,10 +31,13 @@ void test_Serialization() {
     readingsData[14] = 15;
     readingsData[15] = 16;
 
-    bool status = serdes_encode_data_packet(readingsData, 16, tx_buffer, PACKET_LEN_MAX);
+    size_t tx_data_length;
+    bool status = serdes_encode_data_packet(readingsData, 16, tx_buffer, PACKET_LEN_MAX, &tx_data_length);
     for(int i = 0; i < PACKET_LEN_MAX; i++) {
-    	printf("%d\n", tx_buffer[i]);
+    	printf("%d - %d\n", i, tx_buffer[i]);
     }
+    printf("packet length: %d\n", tx_data_length);
+
 	TEST_ASSERT_EQUAL_INT16(status, 1);
 }
 

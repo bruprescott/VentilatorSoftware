@@ -7,7 +7,7 @@
 
 #define PACKET_LEN_MAX (32)
 uint8_t tx_buffer[PACKET_LEN_MAX];
-uint8_t tx_data_length;
+uint16_t tx_data_length;
 bool output_buffer_ready = false;
 
 void comms_init() {
@@ -52,9 +52,8 @@ void comms_sendPeriodicReadings(float pressure, float volume, float flow) {
     readingsData[14] = (((uint32_t) flow) >> 8) & 0xFF;
     readingsData[15] = ((uint32_t) flow) & 0xFF;
 
-    bool status = serdes_encode_data_packet(readingsData, 16, tx_buffer, PACKET_LEN_MAX);
+    bool status = serdes_encode_data_packet(readingsData, 16, tx_buffer, PACKET_LEN_MAX, &tx_data_length);
     if(status) {
     	output_buffer_ready = true;
-    	tx_data_length = 32; //TODO how to get the encoded data length form nanopb?
     }
 }
