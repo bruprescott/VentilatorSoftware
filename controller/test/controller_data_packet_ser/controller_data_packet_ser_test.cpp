@@ -56,7 +56,7 @@ void test_Serialization() {
 	TEST_ASSERT_EQUAL_INT16(true, status);
 	TEST_ASSERT_EQUAL_INT16(24, encoded_data_length);
 
-    pb_istream_t stream = pb_istream_from_buffer(tx_buffer, PACKET_LEN_MAX);
+    pb_istream_t stream = pb_istream_from_buffer(tx_buffer, encoded_data_length);
     
     Packet packet = Packet_init_zero;
     packet.payload.data.data.funcs.decode = bytes_callback;
