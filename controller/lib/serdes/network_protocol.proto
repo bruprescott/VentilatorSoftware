@@ -50,31 +50,81 @@ enum CommandType
 	GET_VENTILATOR_MODE = 0x46;
 	START_VENTILATOR = 0x47;
 	STOP_VENTILATOR = 0x48;
+	NONE = 0xFF;
 }
 
-message CommandPacket
+message Command
 {
     required CommandType cmd = 1;
-    optional uint32 data = 2;
+    optional float data = 2;
 }
 
-message GuiAckPacket
+message GuiAck
 {
 	required uint32 type = 1;
 }
 
-message ControllerDataPacket
+message ControllerStatus
+{
+	required uint64  time = 1;
+	required float pressure = 2;
+	required float volume = 3;
+	required float flow = 4;
+	required uint32 alarm_flags = 5;
+}
+
+message ControllerIdentification
+{
+	required uint64  time = 1;
+	required uint32 version_fw = 2;
+	required uint32 version_hw = 3;
+	optional string about = 4;
+}
+
+
+enum AlarmType 
+{
+	TO_BE_DEFINED = 0;
+}
+
+enum AlarmLevelType 
+{
+	LOW = 0;
+	MEDIUM = 1;
+	HIGH = 2;
+}
+
+message ControlerAlarm
+{
+	required AlarmLevelType level = 1;
+	required AlarmType type = 2;
+	optional string description = 3; //to be defined better 
+}
+
+message ControllerValue
+{
+	optional float value = 1; 
+}
+
+message ControllerData
 {
 	required ControllerMsgType msg_type = 1;
-	required bytes data = 2;
+	required CommandType response_to_cmd = 2;
+
+	oneof payload {
+		ControllerStatus status = 3;
+		ControllerIdentification identification = 4;
+		ControllerValue value = 5;
+		ControlerAlarm alert = 6;
+	}
 }
 
 message Packet
 {
 	oneof payload {
-	    CommandPacket cmd = 1;
-	    GuiAckPacket gui_ack = 2;
-	    ControllerDataPacket data = 3;
+	    Command cmd = 1;
+	    GuiAck gui_ack = 2;
+	    ControllerData data = 3;
 	}
 }
 
