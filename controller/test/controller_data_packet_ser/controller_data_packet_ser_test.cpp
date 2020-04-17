@@ -21,7 +21,7 @@ static bool bytes_callback(pb_istream_t *stream, const pb_field_t *field, void *
 }
 
 
-void test_Serialization() {
+void test_status_serialization() {
     size_t encoded_data_length;
     uint64_t time = 1;
     float pressure = 2.2;
@@ -51,10 +51,47 @@ void test_Serialization() {
     // TEST_ASSERT_EQUAL_INT16(s.alarm_flags, time);
 }
 
+bool command_handler_called = false;
+
+void command_handler(Command cmd) {
+	TEST_ASSERT_EQUAL_INT16(CommandType_NONE, cmd.cmd);
+	TEST_ASSERT_EQUAL_INT16(42.42, cmd.data);
+  command_handler_called = true; 
+}
+
+bool ack_handler_called = false;
+void ack_handler(GuiAck ack) {
+  ack_handler_called = true;
+}
+
+void test_command_deserialization() {
+  Command cmd = Command_init_zero;
+  cmd.cmd = CommandType_NONE;
+  cmd.has_data = true;
+  cmd.data = 42.42;
+
+  Packet packet = Packet_init_zero;
+  packet.which_payload = Packet_cmd_tag;
+  packet.payload.cmd= cmd;
+
+  uint8_t rx_buffer[PACKET_LEN_MAX];
+  pb_ostream_t stream = pb_ostream_from_buffer(rx_buffer, PACKET_LEN_MAX);
+  pb_encode(&stream, Packet_fields, &packet);
+  uint8_t encoded_len = stream.bytes_written;
+
+  TEST_ASSERT_FALSE(ack_handler_called);
+  TEST_ASSERT_FALSE(command_handler_called);
+
+  serdes_decode_incomming_packet(rx_buffer, PACKET_LEN_MAX, encoded_len, ack_handler, command_handler);
+
+  TEST_ASSERT_FALSE(ack_handler_called);
+  TEST_ASSERT_TRUE(command_handler_called);
+}
 
 
 int main() {
   UNITY_BEGIN();
-  RUN_TEST(test_Serialization);
+  RUN_TEST(test_status_serialization);
+  RUN_TEST(test_command_deserialization);
   return UNITY_END();
 }
