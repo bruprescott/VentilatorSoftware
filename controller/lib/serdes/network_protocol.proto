@@ -70,7 +70,7 @@ message ControllerStatus
 	required float pressure = 2;
 	required float volume = 3;
 	required float flow = 4;
-	required uint32 alarm_flags = 5;
+	optional uint32 alarm_flags = 5;
 }
 
 message ControllerIdentification

@@ -42,7 +42,13 @@ void test_Serialization() {
 	TEST_ASSERT_EQUAL_INT16(true, status);
 	TEST_ASSERT_EQUAL_INT16(Packet_data_tag, packet.which_payload);
     TEST_ASSERT_EQUAL_INT16(ControllerMsgType_DATA, packet.payload.data.msg_type);
-    TEST_ASSERT_EQUAL_INT16(ControllerMsgType_DATA, packet.payload.data.msg_type);
+    TEST_ASSERT_EQUAL_INT16(ControllerData_status_tag, packet.payload.data.which_payload);
+    ControllerStatus s = packet.payload.data.payload.status;
+    TEST_ASSERT_EQUAL_INT16(s.time, time);
+    TEST_ASSERT_EQUAL_INT16(s.pressure, pressure);
+    TEST_ASSERT_EQUAL_INT16(s.volume, volume);
+    TEST_ASSERT_EQUAL_INT16(s.flow, flow);
+    // TEST_ASSERT_EQUAL_INT16(s.alarm_flags, time);
 }
 
 

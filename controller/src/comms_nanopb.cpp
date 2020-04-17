@@ -4,16 +4,33 @@
 #include "serdes.h"
 #include "serialIO.h"
 #include "version.h"
+#include "network_protocol.pb.h"
 
 #define PACKET_LEN_MAX (32)
 uint8_t tx_buffer[PACKET_LEN_MAX];
 uint16_t tx_data_length;
 bool output_buffer_ready = false;
 
+uint8_t rx_buffer[PACKET_LEN_MAX];
+uint16_t rx_data_length;
+uint8_t rx_idx = 0;
+uint64_t last_rx = 0;
+
 void comms_init() {
     serialIO_init();
 }
 
+void command_handler(Command) {
+
+}
+
+void ack_handler(GuiAck) {
+
+}
+
+#define RX_TIMEOUT 1
+
+//NOTE this is work in progress. 
 void comms_handler() {
 	//TODO run this via DMA to free up resources for control loops
 	if(output_buffer_ready) {
@@ -22,15 +39,30 @@ void comms_handler() {
 		}
 		output_buffer_ready = false;
 	}
+
+	while(serialIO_dataAvailable()) {
+		char b;
+		serialIO_readByte(&b);
+		rx_buffer[rx_idx++] = (uint8_t) b;
+		if(rx_idx >= PACKET_LEN_MAX) {
+			rx_idx = 0;
+			break;
+		}
+		last_rx = millis();
+	}
+
+	if(millis() - last_rx > RX_TIMEOUT) {
+		serdes_decode_incomming_packet(rx_buffer, PACKET_LEN_MAX, rx_idx - 1, ack_handler, command_handler);
+		rx_idx = 0;
+	}
+
 }
 
 void comms_sendResetState() {
 }
 
 void comms_sendPeriodicReadings(float pressure, float volume, float flow) {
-    uint8_t readingsData[16];
-    uint32_t time;
-
+    uint64_t time;
     time = millis();
     bool status = serdes_encode_status_packet(time, pressure, volume, flow, tx_buffer, PACKET_LEN_MAX, &tx_data_length);
     if(status) {
